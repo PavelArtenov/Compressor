@@ -45,7 +45,9 @@ class Node {
     Node left = null;
     Node right = null;
 
-    public Character getCh() { return ch; }
+    public Character getCh() {
+        return ch;
+    }
 
     public Float getFrequency() {
         return frequency;
@@ -109,11 +111,9 @@ class BuildTable {
                     hm.put(ch, (float) 1);
                 }
             }
-        }
-        catch (FileNotFoundException fnfe) {
+        } catch (FileNotFoundException fnfe) {
             System.out.println("File not found");
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             System.out.println("Read error");
         }
 
@@ -164,11 +164,9 @@ class Compressor {
                 ch = (char) fis.read();
                 code.addAll(hm.get(ch));
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("File not found or read error");
         }
-
         int tail = code.size() % 7;
         for (int i = tail; i != 0; i--) {
             code.add((byte) 0);
@@ -209,11 +207,15 @@ class Compressor {
                 }
 
                 characters.add(tmp_ch);
-                System.out.println((byte) tmp_ch);
-                ch = 0;
+                arr[count] = tmp;
+                count++;
             }
 
         }
+        System.out.println(code);
+        System.out.println(code.size());
+        System.out.println(characters);
+        System.out.println(characters.size());
         return characters;
     }
 }
@@ -222,27 +224,32 @@ class HoffWriter {
 
     public void write(ArrayList<Character> list, String path, HashMap<Character, Float> table) {
         try (DataOutputStream out = new DataOutputStream(new FileOutputStream("/home/paul/path/shtorm.arh"))) {
+            for (Map.Entry<Character, Float> entry : table.entrySet()) {
+                System.out.println(entry.getKey());
+            }
             out.writeInt(table.size());
+            System.out.println(table.size() + " размер таблицы встречаемости");
             out.writeInt(list.get(0));
+            System.out.println((int) list.get(0) + " хвост");
             list.remove(0);
 
             Iterator it = table.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry) it.next();
+                System.out.println("Key = " + pair.getKey() + "    Value = " + pair.getValue());
                 out.writeChar((Character) pair.getKey());
                 out.writeFloat((Float) pair.getValue());
             }
 
-            out.write('\n');
+            out.writeChar('\n');
+            System.out.println(list.size());
             for (char ch : list) {
-                out.write((int) ch);
+                out.writeByte(ch);
             }
-        }
-        catch (FileNotFoundException fnfe) {
+        } catch (FileNotFoundException fnfe) {
             System.out.println("File is missing");
 
-        }
-        catch (IOException ioex) {
+        } catch (IOException ioex) {
             System.out.println("Write error");
         }
     }
